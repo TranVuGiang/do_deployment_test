@@ -46,15 +46,15 @@ jobs:
       - name: Setup SSH key
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/deploy_key
-          chmod 600 ~/.ssh/deploy_key
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/do_deploy_keys
+          chmod 600 ~/.ssh/do_deploy_keys
 
       - name: Add Droplet to known_hosts
         run: ssh-keyscan -H ${{ secrets.DROPLET_IP }} >> ~/.ssh/known_hosts
 
       - name: Deploy to Droplet
         run: |
-          ssh -i ~/.ssh/deploy_key root@${{ secrets.DROPLET_IP }} \
+          ssh -i ~/.ssh/do_deploy_keys root@${{ secrets.DROPLET_IP }} \
             echo "${{ secrets.PASSPHRASE }}" \
             "cd /opt/app && \
             doctl registry login -t ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }} && \

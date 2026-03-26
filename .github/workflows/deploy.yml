@@ -55,6 +55,7 @@ jobs:
       - name: Deploy to Droplet
         run: |
           ssh -i ~/.ssh/deploy_key root@${{ secrets.DROPLET_IP }} \
+            echo "${{ secrets.PASSPHRASE }}" \
             "cd /opt/app && \
             doctl registry login -t ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }} && \
             docker compose -f docker-compose.app.yml pull && \

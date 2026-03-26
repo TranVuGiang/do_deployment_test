@@ -1,0 +1,32 @@
+# Environment
+.env
+.env.*
+!.env.example
+
+# Local data
+data/
+
+# OpenTofu / Terraform
+infra/opentofu/.terraform/
+infra/opentofu/terraform.tfstate
+infra/opentofu/terraform.tfstate.backup
+infra/opentofu/terraform.tfvars
+infra/opentofu/.terraform.lock.hcl
+
+# Ansible
+infra/ansible/inventory.ini
+infra/ansible/.env.secrets
+infra/ansible/.envrc
+
+# Go
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+vendor/
+
+# Binary
+server

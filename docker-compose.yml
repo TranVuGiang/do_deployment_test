@@ -1,0 +1,38 @@
+services:
+  postgres:
+    image: postgres:18.0-alpine3.22
+    container_name: digital_project_postgres
+    ports: 
+      - 5432:5432
+    volumes:
+      - ./data/postgres/:/var/lib/postgres/18/docker
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: digital_db
+      PGDATA: /var/lib/postgres/18/docker
+    networks:
+      gaian:
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres']
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+  valkey:
+    image: valkey/valkey:8.1.4-alpine3.22
+    command: --requirepass password
+    container_name: digital_valkey
+    ports:
+      - 6379:6379
+    volumes:
+     - ./data/valkey:/data
+    environment: 
+      ALLOW_EMPTY_PASSWORD: no
+      VALKEY_PASSWORD: password
+      VALKEY_TLS_ENABLED: no
+    networks:
+      gaian:
+networks:
+  gaian:
+    name: gaian

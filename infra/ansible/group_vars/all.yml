@@ -1,0 +1,8 @@
+app_dir: /opt/app
+
+do_registry: registry.digitalocean.com
+do_registry_name: "{{ lookup('env', 'DO_REGISTRY_NAME') }}"
+
+do_token: "{{ lookup('env', 'DIGITALOCEAN_ACCESS_TOKEN') }}"
+postgres_password: "{{ lookup('env', 'POSTGRES_PASSWORD') }}"
+valkey_password: "{{ lookup('env', 'VALKEY_PASSWORD') }}"

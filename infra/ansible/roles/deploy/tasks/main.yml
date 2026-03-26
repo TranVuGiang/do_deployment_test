@@ -1,0 +1,38 @@
+- name: Create app directory
+  file:
+    path: "{{ app_dir }}"
+    state: directory
+    mode: '0755'
+  
+- name: Render and copy docker-compose.prod.yml
+  template:
+    src: ../../templates/docker-compose.prod.yml.j2
+    dest: "{{ app_dir }}/docker-compose.yml"
+    mode: '0644'
+
+- name: Render and copy .env file
+  template:
+    src: ../../templates/env.j2
+    dest: "{{ app_dir }}/.env"
+    mode: '0600'
+
+- name: Install doctl
+  shell: |
+    cd /tmp
+    wget -q https://github.com/digitalocean/doctl/releases/download/v1.124.0/doctl-1.124.0-linux-amd64.tar.gz
+    tar xf doctl-1.124.0-linux-amd64.tar.gz
+    mv doctl /usr/local/bin/
+  args:
+    creates: /usr/local/bin/doctl
+
+- name: Start infrastructure containers (postgres + valkey)
+  shell: docker compose up -d
+  args:
+    chdir: "{{ app_dir }}"
+
+- name: Verify postgres is healthy
+  shell: docker exec digital_project_postgres pg_isready -U postgres
+  register: pg_check
+  retries: 5
+  delay: 5
+  until: pg_check.rc == 0

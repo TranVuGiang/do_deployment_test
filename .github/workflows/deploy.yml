@@ -43,20 +43,25 @@ jobs:
     needs: build
     environment: dev
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Install Ansible
+        run: pip install ansible
       - name: Setup SSH key
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/do_deploy_ci
           chmod 600 ~/.ssh/do_deploy_ci
-
-      - name: Add Droplet to known_hosts
-        run: ssh-keyscan -H ${{ secrets.DROPLET_IP }} >> ~/.ssh/known_hosts
-
-      - name: Deploy to Droplet
+          ssh-keyscan -H ${{ secrets.DROPLET_IP }} >> ~/.ssh/known_hosts
+          
+      - name: Run Ansible playbook
+        env: 
+           DIGITALOCEAN_ACCESS_TOKEN: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+           POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+           VALKEY_PASSWORD: ${{ secrets.VALKEY_PASSWORD }}
+           DO_REGISTRY_NAME: ${{ env.REGISTRY_NAME }}
         run: |
-          ssh -i ~/.ssh/do_deploy_ci root@${{ secrets.DROPLET_IP }} << 'EOF'
-            cd /opt/app
-            doctl registry login -t ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
-            docker compose -f docker-compose.app.yml pull
-            docker compose -f docker-compose.app.yml up -d
-          EOF
+          ansible-playbook infra/ansible/playbook.yml \
+            -i "${{ secrets.DROPLET_IP }}," \
+            -u root \
+            --private-key ~/.ssh/do_deploy_ci

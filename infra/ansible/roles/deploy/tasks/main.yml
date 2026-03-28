@@ -16,6 +16,12 @@
     dest: "{{ app_dir }}/.env"
     mode: '0600'
 
+- name: Render and copy docker-compose.app.yml
+  template:
+    src: ../../templates/docker-compose.app.yml.j2
+    dest: "{{ app_dir }}/docker-compose.app.yml"
+    mode: '0644'
+
 - name: Install doctl
   shell: |
     cd /tmp
@@ -36,3 +42,15 @@
   retries: 5
   delay: 5
   until: pg_check.rc == 0
+  
+- name: Login to DigitaleOcean Container Registry
+  shell: doctl registry login --access-token {{ do_token }} --expiry-seconds 3600
+  no_log: true
+
+- name: Pull latest app image
+  shell: docker pull registry.digitalocean.com/{{ do_registry_name }}/golang-health-service:latest
+
+- name: Start or Restart app container
+  shell: docker compose -f docker-compose.app.yml up -d --pull never --force-recreate
+  args:
+    chdir: "{{ app_dir }}"

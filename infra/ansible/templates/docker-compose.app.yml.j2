@@ -1,0 +1,15 @@
+services:
+  golang-health-service:
+    image: registry.digitalocean.com/{{ do_registry_name }}/golang-health-service:latest
+    container_name: golang_health_service
+    ports:
+      - "9190:9190"
+    env_file:
+      - .env
+    networks:
+      - gaian
+    restart: unless-stopped
+
+networks:
+  gaian:
+    external: true
